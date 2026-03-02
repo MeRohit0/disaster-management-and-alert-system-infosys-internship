@@ -21,7 +21,7 @@ public class JwtUtils {
     public String generateTokenFromUser(Long userId, String email, String role) {
         return Jwts.builder()
                 .setSubject(email)
-                .claim("userId", userId) // Adding ID as you requested
+                .claim("userId", userId) // Adding ID
                 .claim("role", role)     // Adding Role for RBAC
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
