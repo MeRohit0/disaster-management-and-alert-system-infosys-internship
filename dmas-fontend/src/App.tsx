@@ -10,6 +10,8 @@ import type { JSX } from "react/jsx-runtime";
 import AuthPage from "./pages/AuthPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import ResponderDashboard from "./pages/ResponderDashboard";
+import CitizenDashboard from "./pages/CitizenDashboard";
+import Navbar from "./components/Navbar";
 
 const ProtectedRoute = ({
   children,
@@ -29,6 +31,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <Navbar/>
         <Routes>
           <Route path="/auth" element={<AuthPage />} />
           <Route
@@ -48,6 +51,18 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route 
+            path="/citizen" 
+            element={
+              <ProtectedRoute role="ROLE_CITIZEN">
+                <CitizenDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          {/* Default Redirection */}
+          <Route path="/" element={<Navigate to="/auth" />} />
+          <Route path="*" element={<Navigate to="/auth" />} />
+
         </Routes>
       </Router>
     </AuthProvider>

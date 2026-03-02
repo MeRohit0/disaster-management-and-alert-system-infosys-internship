@@ -1,7 +1,8 @@
 export interface AuthResponse {
   token: string;
   userId: number;
-  role: 'ADMIN' | 'RESPONDER' | 'CITIZEN';
+  role: 'ROLE_ADMIN' | 'ROLE_RESPONDER' | 'ROLE_CITIZEN';
+  location?: string;
 }
 
 export interface UserRegistration {
@@ -11,4 +12,13 @@ export interface UserRegistration {
   role: string;
   phoneNumber: string;
   location: string;
+}
+
+// might delete it later
+export interface User {
+  token: string;
+  userId: number;
+  role: string;
+  email: string;
+  location?: string;
 }

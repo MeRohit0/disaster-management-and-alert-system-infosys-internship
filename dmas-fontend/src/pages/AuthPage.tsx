@@ -200,7 +200,6 @@ const AuthPage = () => {
                       </button>
                     </div>
                   </div>
-                  );
                   {/* <div>
                     <label className="block text-xs font-bold text-gray-500 uppercase">
                       Location
