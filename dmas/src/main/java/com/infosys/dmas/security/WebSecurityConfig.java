@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableWebSecurity
 @EnableMethodSecurity // Allows us to use @PreAuthorize on controllers
 public class WebSecurityConfig {
 
@@ -45,6 +47,18 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/disasters/**").hasRole("ADMIN") // Only Admin can verify/edit
                                 .requestMatchers("/error").permitAll()
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                // 1. SOS Endpoint: Accessible by Citizens
+                                .requestMatchers("/api/help/sos").permitAll()
+
+                                // 2. Admin Endpoints: Pending requests and Assignment
+                                .requestMatchers("/api/help/pending/**").hasRole("ADMIN")
+                                .requestMatchers("/api/help/*/suggested-responders").hasRole("ADMIN")
+                                .requestMatchers("/api/help/*/assign/**").hasRole("ADMIN")
+
+                                // 3. Responder Endpoints: Task list and Acknowledgment
+                                .requestMatchers("/api/help/responder/**").hasAnyRole("RESPONDER", "ADMIN")
+                                .requestMatchers("/api/help/*/acknowledge").hasRole("RESPONDER")
+
                                 .anyRequest().authenticated()
                 );
 
