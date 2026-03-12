@@ -71,7 +71,7 @@ export const sosService = {
 
     updateRequestStatus: async (requestId: number, status: string): Promise<HelpRequestDTO> => {
     // You can create a new endpoint for this or reuse a generic one
-        const response = await api.put(`/help/${requestId}/status`, { status });
+        const response = await api.put(`/${requestId}/status`, { status });
         return response.data;
     }
 };
