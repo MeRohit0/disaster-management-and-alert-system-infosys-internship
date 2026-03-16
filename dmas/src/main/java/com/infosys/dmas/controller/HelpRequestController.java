@@ -104,4 +104,9 @@ public class HelpRequestController {
         return ResponseEntity.ok(helpRequestMapper.toDTO(updated));
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<HelpRequest>> getAllHelpRequests() {
+        List<HelpRequest> requests = helpRequestService.getAllRequests();
+        return ResponseEntity.ok(requests);
+    }
 }

@@ -3,8 +3,10 @@ package com.infosys.dmas.service;
 import com.infosys.dmas.dto.HelpRequestDTO;
 import com.infosys.dmas.dto.UserDTO;
 import com.infosys.dmas.model.HelpRequest;
+import com.infosys.dmas.model.RescueReport;
 import com.infosys.dmas.model.User;
 import com.infosys.dmas.repository.HelpRequestRepository;
+import com.infosys.dmas.repository.RescueReportRepository;
 import com.infosys.dmas.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,9 @@ public class HelpRequestService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RescueReportRepository rescueReportRepository;
 
     // 1. Create a new request (The SOS)
     public HelpRequest createRequest(HelpRequest request) {
@@ -157,5 +162,27 @@ public class HelpRequestService {
 
     public List<HelpRequest> getResolvedHistory() {
         return helpRequestRepository.findByStatusOrderByCreatedAtDesc("RESOLVED");
+    }
+
+    @Transactional
+    public void finalizeRescue(Long requestId, String summary, String severity) {
+        HelpRequest request = helpRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+
+        // 1. Update Request Status
+        request.setStatus("RESOLVED");
+        request.setResolvedAt(LocalDateTime.now());
+        helpRequestRepository.save(request);
+
+        // 2. Create the Detailed Report
+        RescueReport report = new RescueReport();
+        report.setHelpRequest(request);
+        report.setResponder(request.getAssignedResponder());
+
+        rescueReportRepository.save(report);
+    }
+    public List<HelpRequest> getAllRequests() {
+        // This fetches all SOS calls, typically sorted by newest first
+        return helpRequestRepository.findAll();
     }
 }

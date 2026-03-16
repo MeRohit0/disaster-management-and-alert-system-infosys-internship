@@ -1,238 +1,87 @@
-import React, { useEffect, useState } from "react";
-import { type HelpRequestDTO, type UserDTO } from "../../types/helpRequest";
-import { sosService } from "../../api/sosService";
+import React, { useEffect, useState } from 'react';
+import { sosService } from '../../api/sosService';
+import type { UserDTO, HelpRequestDTO } from '../../types/helpRequest';
 
-const AdminHelpRequestList: React.FC = () => {
+const AdminHelpRequestList = () => {
   const [requests, setRequests] = useState<HelpRequestDTO[]>([]);
-  const [suggestions, setSuggestions] = useState<{ [key: number]: UserDTO[] }>(
-    {},
-  );
-  const [dispatchTarget, setDispatchTarget] = useState<number | null>(null); // To track which card is being assigned
+  const [responders, setResponders] = useState<UserDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [isAssigning, setIsAssigning] = useState<number | null>(null);
-
   useEffect(() => {
-    loadRequests();
+    fetchInitialData();
   }, []);
 
-  const loadRequests = async () => {
+  const fetchInitialData = async () => {
     try {
-      const data = await sosService.getPendingRequests();
-      setRequests(data);
-    } catch (error) {
-      console.error("Failed to fetch requests", error);
+      const [pendingReqs, availableRes] = await Promise.all([
+        sosService.getPendingRequests(),
+        sosService.getAvailableResponders()
+      ]);
+      setRequests(pendingReqs);
+      setResponders(availableRes);
+    } catch (err) {
+      console.error("Sync Error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleShowSuggestions = async (requestId: number) => {
+  const handleAssign = async (reqId: number, responderId: number) => {
+    if (!responderId) return;
     try {
-      setDispatchTarget(requestId);
-      // Fetch available responders (calls your new @GetMapping("/responders") or similar)
-      const responders = await sosService.getAvailableResponders();
-      setSuggestions((prev) => ({ ...prev, [requestId]: responders }));
-    } catch (error) {
-      alert("Could not load responders");
+      await sosService.assignResponder(reqId, responderId);
+      // Remove from pending list once assigned
+      setRequests(prev => prev.filter(r => r.id !== reqId));
+      alert("Responder deployed successfully!");
+    } catch (err) {
+      alert("Deployment failed. Check console.");
     }
   };
 
-  const handleAssign = async (requestId: number, responderId: number) => {
-    setIsAssigning(responderId); // Track which specific button was clicked
-    try {
-      await sosService.assignResponder(requestId, responderId);
-
-      // Optional: Add a small toast or notification
-      console.log(`Request ${requestId} assigned to responder ${responderId}`);
-
-      setDispatchTarget(null);
-      loadRequests(); // Refresh the UI
-    } catch (error) {
-      alert(
-        "Assignment failed. Please check if the responder is still available.",
-      );
-    } finally {
-      setIsAssigning(null);
-    }
-  };
-
-  // Helper for icons and colors based on emergency type
-  const getEmergencyConfig = (type: string) => {
-    switch (type?.toUpperCase()) {
-      case "MEDICAL":
-        return {
-          icon: "🚑",
-          color: "text-red-500",
-          bg: "bg-red-500/10",
-          border: "border-red-500/20",
-          label: "Medical",
-        };
-      case "FIRE":
-        return {
-          icon: "🔥",
-          color: "text-orange-500",
-          bg: "bg-orange-500/10",
-          border: "border-orange-500/20",
-          label: "Fire",
-        };
-      case "ACCIDENT":
-        return {
-          icon: "🚗",
-          color: "text-yellow-500",
-          bg: "bg-yellow-500/10",
-          border: "border-yellow-500/20",
-          label: "Accident",
-        };
-      case "CRIME":
-        return {
-          icon: "🛡️",
-          color: "text-purple-500",
-          bg: "bg-purple-500/10",
-          border: "border-purple-500/20",
-          label: "Security",
-        };
-      default:
-        return {
-          icon: "🚨",
-          color: "text-indigo-500",
-          bg: "bg-indigo-500/10",
-          border: "border-indigo-500/20",
-          label: "General",
-        };
-    }
-  };
-
-  if (loading)
-    return (
-      <div className="p-10 text-center text-white">Loading Emergencies...</div>
-    );
+  if (loading) return <div className="p-10 text-center animate-pulse text-slate-500 font-black">INITIALIZING SOS SATELLITE FEED...</div>;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 bg-slate-900 min-h-screen">
-      {requests.map((req) => {
-        const config = getEmergencyConfig(req.type || "");
-        const isDispatching = dispatchTarget === req.id;
-        const currentSuggestions = suggestions[req.id!] || [];
-
-        return (
-          <div
-            key={req.id}
-            className={`relative overflow-hidden bg-slate-800 border ${isDispatching ? "border-indigo-500" : "border-slate-700"} rounded-xl shadow-2xl transition-all hover:scale-[1.02]`}
-          >
-            {/* Top Status Bar */}
-            <div
-              className={`h-1.5 w-full ${
-                req.status === "PENDING"
-                  ? `${config.color.replace("text", "bg")} animate-pulse`
-                  : "bg-emerald-500"
-              }`}
-            />
-
-            <div className="p-5">
-              {/* Header */}
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-3">
-                  <div className={`text-2xl p-2 rounded-lg ${config.bg}`}>
-                    {config.icon}
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-slate-100">
-                      {req.citizenName}
-                    </h3>
-                    <p
-                      className={`text-[10px] font-black uppercase tracking-widest ${config.color}`}
+    <div className="overflow-x-auto">
+      <table className="w-full text-left">
+        <thead className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+          <tr>
+            <th className="p-4 pl-8">Citizen / Location</th>
+            <th className="p-4">Message</th>
+            <th className="p-4">Assign Responder</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          {requests.length === 0 ? (
+            <tr><td colSpan={3} className="p-10 text-center text-slate-400 text-xs font-bold">No pending SOS requests. System Clear.</td></tr>
+          ) : (
+            requests.map((req) => (
+              <tr key={req.id} className="hover:bg-slate-50/80 transition-colors">
+                <td className="p-4 pl-8">
+                  <p className="font-bold text-slate-900">{req.citizenName || 'Anonymous Citizen'}</p>
+                  <p className="text-[10px] text-blue-600 font-bold">📍 {req.location}</p>
+                </td>
+                <td className="p-4">
+                  <p className="text-sm text-slate-600 italic">"{req.description}"</p>
+                </td>
+                <td className="p-4">
+                  <div className="flex gap-2">
+                    <select 
+                      className="bg-slate-100 border-none text-[10px] font-bold rounded-lg p-2 outline-none focus:ring-2 focus:ring-blue-500"
+                      onChange={(e) => (req.id && handleAssign(req.id, Number(e.target.value)))}
+                      defaultValue=""
                     >
-                      {config.label} Emergency
-                    </p>
+                      <option value="" disabled>Select Responder</option>
+                      {responders.map(res => (
+                        <option key={res.id} value={res.id}>{res.name}</option>
+                      ))}
+                    </select>
                   </div>
-                </div>
-                <span className="text-xs font-mono text-slate-400">
-                  #SOS-{req.id}
-                </span>
-              </div>
-
-              {/* Conditional Content: List of Responders OR Emergency Details */}
-              {isDispatching ? (
-                <div className="space-y-3 animate-in fade-in slide-in-from-top-1">
-                  <div className="flex justify-between items-center">
-                    <h4 className="text-xs font-black text-slate-500 uppercase">
-                      Available Units
-                    </h4>
-                    <button
-                      onClick={() => setDispatchTarget(null)}
-                      className="text-[10px] text-red-400 font-bold hover:underline"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                  <div className="max-h-40 overflow-y-auto space-y-2 pr-1 scrollbar-hide">
-                    {currentSuggestions.length > 0 ? (
-                      currentSuggestions.map((res) => (
-                        <div
-                          key={res.id}
-                          className="flex justify-between items-center bg-slate-900 p-2 rounded border border-slate-700"
-                        >
-                          <div>
-                            <p className="text-xs font-bold text-white">
-                              {res.name}
-                            </p>
-                            <p className="text-[10px] text-slate-500">
-                              {res.location}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => handleAssign(req.id!, res.id)}
-                            className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black rounded uppercase"
-                          >
-                            Assign
-                          </button>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-[10px] text-slate-500 text-center py-4">
-                        Finding available responders...
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center text-slate-300 gap-2">
-                    <span className="text-sm">📍 {req.location}</span>
-                  </div>
-                  <p className="text-slate-400 text-sm italic bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-                    "{req.description || "No description provided."}"
-                  </p>
-                </div>
-              )}
-
-              {/* Main Action Button - Hidden when dispatching */}
-              {!isDispatching && (
-                <button
-                  onClick={() => handleShowSuggestions(req.id!)}
-                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2"
-                >
-                  <span>Dispatch Responder</span>
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M13 7l5 5m0 0l-5 5m5-5H6"
-                    />
-                  </svg>
-                </button>
-              )}
-            </div>
-          </div>
-        );
-      })}
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };

@@ -3,6 +3,7 @@ package com.infosys.dmas.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "help_requests")
@@ -37,4 +38,7 @@ public class HelpRequest {
 
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime resolvedAt;
+
+    @OneToMany(mappedBy = "helpRequest", cascade = CascadeType.ALL)
+    private List<RescueReport> progressReports;
 }
