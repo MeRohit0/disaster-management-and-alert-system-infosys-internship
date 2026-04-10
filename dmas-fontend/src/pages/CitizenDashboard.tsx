@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../context/AuthContext';
 import SOSButton from '../components/citizen/SOSButton'; // Import your new Module 3 component

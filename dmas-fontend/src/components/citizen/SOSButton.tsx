@@ -37,6 +37,7 @@ const SOSButton: React.FC<SOSButtonProps> = ({ userId, userLocation }) => {
         setIsModalOpen(false);
         setFormData({ type: 'MEDICAL', description: '' });
       }, (err) => {
+        console.log(err);
         alert("Location access denied. Please enable GPS for SOS.");
       });
     } catch (error) {

@@ -84,6 +84,7 @@ const AuthPage = () => {
         }
       },
       (error) => {
+        console.log(error);
         setLoadingLocation(false);
         alert("Location access denied. Please type your location.");
       },

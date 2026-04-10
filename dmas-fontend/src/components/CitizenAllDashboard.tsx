@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../context/AuthContext';
 
@@ -14,6 +14,7 @@ interface DisasterAlert {
 
 const CitizenAllDashboard = () => {
   const [alerts, setAlerts] = useState<DisasterAlert[]>([]);
+  // @ts-ignore
   const { user } = useAuth();
 
   useEffect(() => {

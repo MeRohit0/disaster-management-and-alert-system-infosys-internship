@@ -1,4 +1,3 @@
-import React from 'react';
 
 // Updated interface to match your backend's nested objects
 interface Report {

@@ -135,7 +135,7 @@
 
 // export default ResponderDashboard;
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { sosService } from '../api/sosService';
 
 const ResponderDashboard = () => {

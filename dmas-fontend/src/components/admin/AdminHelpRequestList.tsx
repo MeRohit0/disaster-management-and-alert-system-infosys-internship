@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { sosService } from '../../api/sosService';
 import type { UserDTO, HelpRequestDTO } from '../../types/helpRequest';
 

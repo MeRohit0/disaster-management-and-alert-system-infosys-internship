@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { type HelpRequestDTO } from '../../types/helpRequest';
-import { sosService } from '../../api/sosService';
 import api from '../../api/axiosConfig'; // Use your configured axios instance
 
 const ResponderTaskList: React.FC<{ responderId: number }> = ({ responderId }) => {
