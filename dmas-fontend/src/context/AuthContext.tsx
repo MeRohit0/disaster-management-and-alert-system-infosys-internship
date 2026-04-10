@@ -30,8 +30,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('token', data.token);
     localStorage.setItem('role', data.role);
     localStorage.setItem('userId', data.userId);
-    localStorage.setItem('userName', data.name || '');
-    localStorage.setItem('userLocation', data.location || '');
+    localStorage.setItem('userName', data.name || 'Rohit');
+    localStorage.setItem('userLocation', data.location || 'Bhiwadi');
     setUser(data);
   };
 
