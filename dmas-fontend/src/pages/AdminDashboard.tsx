@@ -4,12 +4,13 @@ import { sosService } from "../api/sosService";
 import AdminHelpRequestList from "../components/admin/AdminHelpRequestList";
 import TimelineComponent from "../components/admin/TimelineComponent";
 import MapComponent from "../components/admin/MapComponent";
+import AnalyticsView from "../components/AnalyticsView";
 
 const AdminDashboard = () => {
   // Navigation State
   const [activeTab, setActiveTab] = useState<
-    "SOS_FEED" | "RESCUE_LOGS" | "RSS_VERIFY"
-  >("SOS_FEED");
+    "SOS_FEED" | "RESCUE_LOGS" | "RSS_VERIFY" | "analytics"
+  >("analytics");
 
   // Module 1 & 2 State (RSS Alerts)
   const [alerts, setAlerts] = useState<any[]>([]);
@@ -110,7 +111,7 @@ const AdminDashboard = () => {
           </div>
 
           <div className="flex bg-slate-200/50 p-1 rounded-xl border border-slate-200">
-            {["SOS_FEED", "RESCUE_LOGS", "RSS_VERIFY"].map((tabId) => (
+            {["SOS_FEED", "RESCUE_LOGS", "RSS_VERIFY", "analytics"].map((tabId) => (
               <button
                 key={tabId}
                 onClick={() => setActiveTab(tabId as any)}
@@ -369,6 +370,8 @@ const AdminDashboard = () => {
             </div>
           </section>
         )}
+        {/* section 4 :  analytics */}
+        {activeTab === 'analytics' && <AnalyticsView />}
 
         {/* --- RSS MODAL --- */}
         {selectedAlert && (
