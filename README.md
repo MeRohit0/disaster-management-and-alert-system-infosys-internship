@@ -44,7 +44,30 @@ DMAS is a comprehensive solution designed to streamline emergency response durin
 * **Spring Data JPA:** Efficient database management and ORM mapping.
 * **MySQL:** Reliable relational data storage.
 
+---
 
+## 🔌 API Endpoints (Brief)
+
+### Authentication
+- `POST /api/auth/login` - Returns JWT token.
+- `POST /api/auth/register` - Create new account (Citizen/Responder).
+
+### Disaster Management
+- `GET /api/disasters/all` - Fetch all RSS alerts.
+- `PUT /api/disasters/{id}/verify` - (Admin only) Verify and publish alert.
+
+### SOS Operations
+- `POST /api/sos` - Citizen sends location and description.
+- `GET /api/analytics/summary` - Fetch data for Recharts dashboard.
+
+---
+
+## 🗄️ Database Design
+The system uses a relational schema designed for data integrity:
+* **Users Table:** Stores credentials and roles (ADMIN, CITIZEN, RESPONDER).
+* **HelpRequests Table:** Stores SOS data, linked to a User (Citizen) and a Location.
+* **RescueReports Table:** One-to-Many relationship with HelpRequests to maintain the audit trail.
+* **Alerts Table:** Stores RSS feed data and verification status.
 
 ---
 
