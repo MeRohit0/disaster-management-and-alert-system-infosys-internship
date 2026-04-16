@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { HelpRequestDTO, UserDTO } from '../types/helpRequest';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
 // 1. Create an axios instance
 const api = axios.create({
