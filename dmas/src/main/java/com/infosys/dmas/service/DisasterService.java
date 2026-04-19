@@ -116,7 +116,7 @@ public class DisasterService {
             XmlMapper xmlMapper = new XmlMapper();
             // Since the XML uses namespaces (cap:alert), we configure the mapper
             CapAlert detail = xmlMapper.readValue(xmlData, CapAlert.class);
-            System.out.println(xmlData);
+            // System.out.println(xmlData);
             // Now update your database with the EXTRA details (instructions, etc.)
             updateExistingAlert(detail);
 
